@@ -1,0 +1,26 @@
+{
+  "name": "homesecure",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start:dev": "npx nodemon",
+    "build": "rimraf ./dist && tsc -p .",
+    "start": "npm run build && node dist/Bridge.js",
+    "go": "node dist/Bridge.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bn.js": "^5.1.5",
+    "@types/node": "^20.9.0",
+    "nodemon": "^3.0.1",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@project-chip/matter-node.js": "0.7.2",
+    "@project-chip/matter.js-tools": "0.7.2",
+    "zigbee-herdsman": "^0.23.0"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules
+tsconfig.tsbuildinfo
+package-lock.json
+build
+working
+.vscode
+dist
