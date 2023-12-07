@@ -25,7 +25,7 @@ export class Supervisor {
       serialPort: {
         adapter: "zstack",
         baudRate: 115200,
-        path: "/dev/ttyACM0",
+        path: "COM9",
         rtscts: false
       },
       databasePath: "./working/database",
@@ -97,6 +97,10 @@ export class Supervisor {
       return;
     }
     var device = payload.device;
+    await this.DeviceInterview1(device);
+  }
+
+  private async DeviceInterview1(device: Device) {
     for (const endpoint of device.endpoints) {
       console.log(`Configuration: ${device.ieeeAddr}, ${endpoint.ID}`);
       for (let [cluster1, definition] of Object.entries(Definitions)) {
@@ -131,34 +135,6 @@ export class Supervisor {
     }
   }
 
-  private async DeviceInterview1(device : Device) {
-    for (let device of this.connection!.getDevices()) {
-      for (const endpoint of device.endpoints) {
-        console.log(`Configuration: ${device.ieeeAddr}, ${endpoint.ID}`);
-        for (let [cluster1, definition] of Object.entries(Definitions)) {
-          let cluster = parseInt(cluster1);
-          if (endpoint.inputClusters.indexOf(cluster) === -1) {
-            continue;
-          }
-          try {
-            const destination = this.connection!.getDeviceByNetworkAddress(0).getEndpoint(1);
-            //endpoint.binds.filter(bind => bind.cluster.ID === cluster && (<Endpoint>bind.target)?.deviceIeeeAddress === destination.deviceIeeeAddress && (<Endpoint>bind.target)?.ID === 1)?.length;
-            await endpoint.bind(cluster, destination);
-          } catch { }
-          if (definition.cr?.size) {
-            let configureServerReporting = definition.cr
-              .entries()
-              .map((cr: any) => <ConfigureReportingItem>Object.assign({}, DefaultConfigureReportingItem, { attribute: parseInt(cr[0]) }, cr[1]));
-            try {
-              await endpoint.configureReporting(cluster, configureServerReporting);
-            } catch { }
-            console.log(`Configuration: ${device.ieeeAddr}, ${endpoint.ID}, ${cluster}`);
-          }
-        }
-      }
-    }
-  }
-
   private Analyze(endpoint: Endpoint, inputClusters: number[], index: number = 1) {
     console.log(`Analyzing: ${inputClusters}`);
     var detector = this.Detector(inputClusters);
@@ -183,19 +159,27 @@ export class Supervisor {
   }
 
   Detector(serverClusters: number[]): DetectorResponse | undefined {
-    serverClusters = serverClusters.filter(c => c !== IdentifyCluster.id);
+    console.log(serverClusters);
+    serverClusters = serverClusters.filter(item => item !== IdentifyCluster.id);
+    console.log(serverClusters);
     var map: DetectorResponse[] = [];
     for (let [_, deviceTypeDefinition] of Object.entries(DeviceTypes)) {
-      const requiredServerClusters = deviceTypeDefinition.requiredServerClusters.map(c => c.valueOf()).filter(c => c !== IdentifyCluster.id);
-      if (requiredServerClusters?.filter(item => serverClusters.indexOf(item) < 0)?.length) {
+      const requiredServerClusters = deviceTypeDefinition.requiredServerClusters.map(item => item.valueOf()).filter(item => item !== IdentifyCluster.id);
+      if (requiredServerClusters.length === 0) {
         continue;
       }
+      if (requiredServerClusters.filter(item => serverClusters.indexOf(item) < 0).length) {
+        continue;
+      }
+      //if (!requiredServerClusters?.filter(item => serverClusters.indexOf(item) < 0)?.length) {
+      //  continue;
+      //}
       let uncoveredClusters = serverClusters.filter(item => requiredServerClusters.indexOf(item) < 0);
-      const optionalServerClusters = deviceTypeDefinition.optionalServerClusters.map(c => c.valueOf()).filter(c => c !== IdentifyCluster.id);
+      const optionalServerClusters = deviceTypeDefinition.optionalServerClusters.map(item => item.valueOf()).filter(c => c !== IdentifyCluster.id);
       uncoveredClusters = uncoveredClusters.filter(item => optionalServerClusters.indexOf(item) < 0);
       map.push({
         deviceTypeDefinition,
-        rank: 4 * (requiredServerClusters.length - uncoveredClusters.length) + optionalServerClusters.length,
+        rank: requiredServerClusters.length - uncoveredClusters.length,
         uncoveredClusters
       });
     }
