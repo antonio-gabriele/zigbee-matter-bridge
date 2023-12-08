@@ -172,7 +172,7 @@ export class Supervisor {
         continue;
       }
       let uncoveredClusters = serverClusters.filter(item => requiredServerClusters.indexOf(item) < 0);
-      const optionalServerClusters = deviceTypeDefinition.optionalServerClusters.map(item => item.valueOf()).filter(c => c !== IdentifyCluster.id);
+      const optionalServerClusters = deviceTypeDefinition.optionalServerClusters.map(item => item.valueOf()).filter(item => item !== IdentifyCluster.id);
       uncoveredClusters = uncoveredClusters.filter(item => optionalServerClusters.indexOf(item) < 0);
       map.push({
         deviceTypeDefinition,
