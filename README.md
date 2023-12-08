@@ -12,7 +12,7 @@ Zigbee Dongle Coordinator configuration is in src/Supervisor.ts, that you need t
 ```
 git clone https://github.com/antonio-gabriele/zigbee-matter-bridge
 cd  zigbee-matter-bridge
-nano src/Supervisor.ts
+nano configuration.json
 npm install
 npm run start
 ```
@@ -30,7 +30,7 @@ The purpose of this project is to develop a zero-configuration device that home 
 
 ## Change log
 
-2023-12-08 - Added Binary Input Cluster, Updated matter.js to 0.7.2 Release, Fixed some workaround, Refactoring.
+2023-12-08 - Added Binary Input Cluster, Updated matter.js to 0.7.2 Release, Fixed some workaround, Configuration file, Refactoring.
 
 ## To Do
 

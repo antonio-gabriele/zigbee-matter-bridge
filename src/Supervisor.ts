@@ -7,7 +7,7 @@ import { DefaultConfigureReportingItem, Definitions } from "./Definitions";
 import Cluster from "zigbee-herdsman/dist/zcl/definition/cluster";
 import { ClusterId } from "@project-chip/matter-node.js/datatype";
 import { IdentifyCluster, OnOff } from "@project-chip/matter-node.js/cluster";
-import { ConfigureReportingItem } from "./Model";
+import { Configuration, ConfigureReportingItem } from "./Model";
 
 interface DetectorResponse {
   deviceTypeDefinition: DeviceTypeDefinition,
@@ -19,14 +19,15 @@ export class Supervisor {
   private mapping: Map<string, BridgedDevice> = new Map<string, BridgedDevice>();
   private connection: Controller | undefined;
   private permitJoinDeviceFactory: BridgedDevice | undefined;
-  constructor(private aggregator: Aggregator) { }
+  constructor(private configuration: Configuration, private aggregator: Aggregator) { }
+
   async Start() {
     this.connection = new Controller({
       serialPort: {
-        adapter: "zstack",
-        baudRate: 115200,
-        path: "/dev/ttyACM0",
-        rtscts: false
+        adapter: this.configuration.zigbee.adapter,
+        baudRate: this.configuration.zigbee.baudRate,
+        path: this.configuration.zigbee.path,
+        rtscts: this.configuration.zigbee.rtscts
       },
       databasePath: "./working/database",
       network: {

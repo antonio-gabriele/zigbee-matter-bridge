@@ -10,6 +10,8 @@ import {
 } from "@project-chip/matter-node.js/util";
 import { Format, Level, Logger } from "@project-chip/matter-node.js/log";
 import { Supervisor } from "./Supervisor";
+import { readFile } from "fs/promises";
+import { Configuration } from "./Model";
 
 requireMinNodeVersion(16);
 Logger.defaultLogLevel = Level.INFO;
@@ -22,6 +24,10 @@ export class Bridge {
     private matterServer: MatterServer | undefined;
 
     async start() {
+        const configurationJson = await readFile("configuration.json", {
+            encoding: 'utf8'
+        });
+        const configuration : Configuration = JSON.parse(configurationJson);
         const storageManager = new StorageManager(storage);
         await storageManager.initialize();
         const deviceStorage = storageManager.createContext("Device");
@@ -58,7 +64,7 @@ export class Bridge {
             },
         });
         const aggregator = new Aggregator();
-        const managerOfZigbee = new Supervisor(aggregator);
+        const managerOfZigbee = new Supervisor(configuration, aggregator);
         await managerOfZigbee.Start();
         commissioningServer.addDevice(aggregator);
         await this.matterServer.addCommissioningServer(commissioningServer);
