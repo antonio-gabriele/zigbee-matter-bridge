@@ -25,7 +25,7 @@ export class Supervisor {
       serialPort: {
         adapter: "zstack",
         baudRate: 115200,
-        path: "COM9",
+        path: "/dev/ttyACM0",
         rtscts: false
       },
       databasePath: "./working/database",
@@ -48,6 +48,7 @@ export class Supervisor {
     this.PermitJoin();
     var devices = await this.connection.getDevices();
     for (const device of devices) {
+      //this.DeviceInterview1(device);
       for (const endpoint of device.endpoints) {
         this.Analyze(endpoint, endpoint.inputClusters);
       }
@@ -112,23 +113,24 @@ export class Supervisor {
           const destination = this.connection!.getDeviceByNetworkAddress(0).getEndpoint(1);
           let missing = !endpoint.binds.filter(bind => bind.cluster.ID === cluster && (<Endpoint>bind.target)?.deviceIeeeAddress === destination.deviceIeeeAddress && (<Endpoint>bind.target)?.ID === 1)?.length;
           if (missing) {
+            console.log(`Binding: ${device.ieeeAddr}, ${endpoint.ID}, ${cluster}`);
             await endpoint.bind(cluster, destination);
           }
         } catch { }
-        if (definition.cr?.size) {
+        if (definition.cr) {
           let configureServerReporting: ConfigureReportingItem[] = [];
-          for (const cr of definition.cr.entries()) {
-            let missing = endpoint.configuredReportings.filter(cr1 => cr1.attribute.ID === parseInt(cr[0]));
+          for (const [attribute, cfg] of Object.entries(definition.cr)) {
+            let missing = endpoint.configuredReportings.filter(cr1 => cr1.attribute.ID === parseInt(attribute));
             if (missing) {
-              configureServerReporting.push(<ConfigureReportingItem>Object.assign({}, DefaultConfigureReportingItem, { attribute: parseInt(cr[0]) }, cr[1]));
+              configureServerReporting.push(<ConfigureReportingItem>Object.assign({}, DefaultConfigureReportingItem, { attribute: parseInt(attribute) }, cfg));
             }
           }
           if (configureServerReporting.length) {
             try {
+              console.log(`Configure: ${device.ieeeAddr}, ${endpoint.ID}, ${cluster}`);
               await endpoint.configureReporting(cluster, configureServerReporting);
             } catch { }
           }
-          console.log(`Configuration: ${device.ieeeAddr}, ${endpoint.ID}, ${cluster}`);
         }
       }
       this.Analyze(endpoint, endpoint.inputClusters);
@@ -159,9 +161,7 @@ export class Supervisor {
   }
 
   Detector(serverClusters: number[]): DetectorResponse | undefined {
-    console.log(serverClusters);
     serverClusters = serverClusters.filter(item => item !== IdentifyCluster.id);
-    console.log(serverClusters);
     var map: DetectorResponse[] = [];
     for (let [_, deviceTypeDefinition] of Object.entries(DeviceTypes)) {
       const requiredServerClusters = deviceTypeDefinition.requiredServerClusters.map(item => item.valueOf()).filter(item => item !== IdentifyCluster.id);
@@ -171,9 +171,6 @@ export class Supervisor {
       if (requiredServerClusters.filter(item => serverClusters.indexOf(item) < 0).length) {
         continue;
       }
-      //if (!requiredServerClusters?.filter(item => serverClusters.indexOf(item) < 0)?.length) {
-      //  continue;
-      //}
       let uncoveredClusters = serverClusters.filter(item => requiredServerClusters.indexOf(item) < 0);
       const optionalServerClusters = deviceTypeDefinition.optionalServerClusters.map(item => item.valueOf()).filter(c => c !== IdentifyCluster.id);
       uncoveredClusters = uncoveredClusters.filter(item => optionalServerClusters.indexOf(item) < 0);

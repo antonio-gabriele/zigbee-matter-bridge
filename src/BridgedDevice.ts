@@ -42,9 +42,6 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
     let cluster = AllClustersMap[ClusterId(clusterId)];
     let commands: any = {};
     for (let [key, command] of Object.entries(cluster.commands)) {
-      //if ((<any>command).optional) {
-      //  continue;
-      //}
       commands[key] = async (obj: any) => {
         let request = obj.request;
         let commandId = (<any>command).requestId;
@@ -61,10 +58,6 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
     let attributes: any = {};
     let commandHandler = WrapCommandHandler(commands, this.commandHandler);
     for (let [key, attribute] of Object.entries(cluster.attributes)) {
-      //https://github.com/project-chip/matter.js/issues/553
-      //if ((<any>attribute).optional || (<any>attribute).default > 512) {
-      //  continue;
-      //}
       attributes[key] = (<any>attribute).default;
     }
     this.addClusterServer(ClusterServer(cluster, attributes, <any>commandHandler));
@@ -80,7 +73,7 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
   }
 
   addBridgedDevice(aggregator: Aggregator) {
-    if (this.id !== undefined && this.getChildEndpoint(this.id) !== undefined) {
+    if (this.id !== undefined && aggregator.getChildEndpoint(this.id) !== undefined) {
       aggregator.removeBridgedDevice(this);
     }
     aggregator.addBridgedDevice(this, {

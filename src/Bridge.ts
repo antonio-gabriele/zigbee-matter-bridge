@@ -12,7 +12,7 @@ import { Format, Level, Logger } from "@project-chip/matter-node.js/log";
 import { Supervisor } from "./Supervisor";
 
 requireMinNodeVersion(16);
-Logger.defaultLogLevel = Level.DEBUG;
+Logger.defaultLogLevel = Level.INFO;
 Logger.format = Format.PLAIN;
 
 const storageLocation = getParameter("store") ?? "./working/matter";

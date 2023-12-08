@@ -30,4 +30,9 @@ The purpose of this project is to develop a zero-configuration device that home 
 
 ## Change log
 
-2023-12-08 - Added Binary Input Cluster, Updated matter.js to 0.7.2 Release, Refactoring.
+2023-12-08 - Added Binary Input Cluster, Updated matter.js to 0.7.2 Release, Fixed some workaround, Refactoring.
+
+## To Do
+
+Check about Google Home App commissioning error.
+Check about Home Assistant missing temperature and humidity sensors.
