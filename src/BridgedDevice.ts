@@ -23,7 +23,7 @@ function delay() {
 }
 
 export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, BaseDeviceCommands>(Device) {
-  
+
   public uniqueId: string;
   constructor(name: string, private product: string, deviceTypeDefinition: DeviceTypeDefinition, uniqueId: string | null = null) {
     super(deviceTypeDefinition);
@@ -42,17 +42,16 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
     let cluster = AllClustersMap[ClusterId(clusterId)];
     let commands: any = {};
     for (let [key, command] of Object.entries(cluster.commands)) {
+      console.log(`Adding commands ${key}`);
       commands[key] = async (obj: any) => {
         let request = obj.request;
         let commandId = (<any>command).requestId;
         let definition = Definitions[cluster.id];
-        if(definition && definition.ex_cm_tr){
-          let fn = definition.ex_cm_tr[commandId];
-          request = fn ? fn(request) : request;
-          console.log(`Executing command ${key} ${commandId}`);
-          await endpoint.command(cluster.id, commandId, request);
-          await delay();  
-        }
+        let fn = definition.ex_cm_tr ? definition.ex_cm_tr[commandId] : null;
+        request = fn ? fn(request) : request;
+        console.log(`Executing command ${key} ${commandId}`);
+        await endpoint.command(cluster.id, commandId, request);
+        await delay();
       };
     }
     let attributes: any = {};
