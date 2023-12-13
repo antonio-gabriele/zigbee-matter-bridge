@@ -40,9 +40,10 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
 
   addClusterServerGeneric(clusterId: number, endpoint: Endpoint) {
     let cluster = AllClustersMap[ClusterId(clusterId)];
+    console.log(`Adding Cluster ${cluster.name}`);
     let commands: any = {};
     for (let [key, command] of Object.entries(cluster.commands)) {
-      console.log(`Adding commands ${key}`);
+      console.log(`Adding Command ${key}`);
       commands[key] = async (obj: any) => {
         let request = obj.request;
         let commandId = (<any>command).requestId;
@@ -57,9 +58,12 @@ export class BridgedDevice extends extendPublicHandlerMethods<typeof Device, Bas
     let attributes: any = {};
     let commandHandler = WrapCommandHandler(commands, this.commandHandler);
     for (let [key, attribute] of Object.entries(cluster.attributes)) {
-      attributes[key] = (<any>attribute).default;
+      attributes[key] = (<any>attribute).default || 1;
     }
-    this.addClusterServer(ClusterServer(cluster, attributes, <any>commandHandler));
+    this.addClusterServer(
+      ClusterServer(cluster,
+        attributes,
+        commandHandler));
   }
 
   addOnOffServer(onOffClusterHandler: ClusterServerHandlers<typeof OnOff.Base>) {

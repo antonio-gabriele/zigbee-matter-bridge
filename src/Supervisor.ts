@@ -49,7 +49,6 @@ export class Supervisor {
     this.PermitJoin();
     var devices = await this.connection.getDevices();
     for (const device of devices) {
-      //this.DeviceInterview1(device);
       for (const endpoint of device.endpoints) {
         this.Analyze(endpoint, endpoint.inputClusters);
       }
@@ -77,15 +76,16 @@ export class Supervisor {
       }
       let attributes = Object.getOwnPropertyNames(payload.data);
       for (let attribute of attributes) {
+        let text = `${deviceFactory.uniqueId}\\${key}\\${attribute}`;
         if (mCluster.isAttributeSupportedByName(attribute)) {
           let value = (<any>payload.data)[attribute];
           let attribute1 = mCluster.attributes[attribute];
-          let key = `${cluster.ID}.${attribute1.id}`;
           let fn = Definitions[cluster.ID]?.rd_at_tr?.[attribute1.id];
           value = fn ? fn(value) : value;
           attribute1.setLocal(value);
-          console.log(`${deviceFactory.uniqueId}\\${key}\\${attribute} = ${value}`);
+          text = `${text} = ${value}`;
         }
+        console.log(text);
       }
     }
   }
@@ -154,7 +154,7 @@ export class Supervisor {
         deviceFactory.addClusterServerGeneric(cluster, endpoint);
         const key = `${endpoint.deviceIeeeAddress}:${endpoint.ID}:${cluster}`;
         this.mapping.set(key, deviceFactory);
-        console.log(`Adding: ${endpoint.deviceIeeeAddress}, ${endpoint.ID}, ${cluster} on ${name} of type ${deviceTypeDefinition.name}`);
+        console.log(`Adding: ${endpoint.deviceIeeeAddress}, ${endpoint.ID}, ${cluster} on ${name} of type ${deviceTypeDefinition.name}, ${deviceTypeDefinition.code}`);
       }
       deviceFactory.addBridgedDevice(this.aggregator);
     }
