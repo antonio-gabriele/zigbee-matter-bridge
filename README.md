@@ -38,4 +38,6 @@ The purpose of this project is to develop a zero-configuration device that home 
 
 Check about Google Home App commissioning error.
 
+Client cluster.
+
 x) Check about Home Assistant missing temperature and humidity sensors.
