@@ -20,7 +20,7 @@ export var Definitions: DefinitionType = {
       0: {}
     },
     ex_cm_tr: {
-      0: (payload: any) => Object.assign(payload, { transtime: payload.transitionTime })
+      4: (payload: any) => Object.assign(payload, { transtime: payload.transitionTime })
     }
   },
   15:
