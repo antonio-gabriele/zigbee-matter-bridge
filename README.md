@@ -21,7 +21,7 @@ npm run start
 
 - Google Home App: I cannot pair Bridge Device with my Google Home App, despite I added it into my account.
 - Alexa: I can use OnOff, Dimmer, Temperature, Humidity. Bad data report on OnOff and Dimmer. Also no routine on those clusters. Bad work by Amazon.
-- Home Assistant: I can use OnOff, Dimmer. No Temperature or Humidity. But on forums, seen to be my personal problem. Data report is excellent.
+- Home Assistant: I can use OnOff, Dimmer, Temperature, Humidity and Occupancy. But on forums, seen to be my personal problem. Data report is excellent.
 - Pay attention: Matter latest specifications (1.2) don't have Energy Measurement device type. So it's not possible to use 0B04 Cluster. We have to wait.
 
 ## Purpose
@@ -32,8 +32,10 @@ The purpose of this project is to develop a zero-configuration device that home 
 
 2023-12-08 - Added Binary Input Cluster, Updated matter.js to 0.7.2 Release, Fixed some workaround, Configuration file, Refactoring.
 
+2023-12-08 - Temperature, Humidity and Occupancy working. Improved logging
+
 ## To Do
 
 Check about Google Home App commissioning error.
 
-Check about Home Assistant missing temperature and humidity sensors.
+x) Check about Home Assistant missing temperature and humidity sensors.
